@@ -30,6 +30,7 @@ std::string Logger::getLevelTag(LogLevel level) {
         case LogLevel::INFO:  return "INFO ";
         case LogLevel::WARN:  return "WARN ";
         case LogLevel::ERROR: return "ERROR";
+        case LogLevel::SUCCESS: return "SUCCESS";
         default:              return "LOG  ";
     }
 }
@@ -49,6 +50,9 @@ void setConsoleColor(LogLevel level) {
             break; // Yellow
         case LogLevel::ERROR:
             color = FOREGROUND_RED | FOREGROUND_INTENSITY;
+            break;
+        case LogLevel::SUCCESS:
+            color = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
             break;
         default:
             color = 7;
@@ -108,4 +112,8 @@ void Logger::warn(const std::string& message) {
 
 void Logger::error(const std::string& message) {
     log(LogLevel::ERROR, message);
+}
+
+void Logger::success(const std::string& message) {
+    log(LogLevel::SUCCESS, message);
 }

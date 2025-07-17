@@ -1,6 +1,11 @@
 #include<iostream>
 #include<sstream>
+#include <thread>
+#include <chrono>
 #include "ProcessManager.h"
+#include "Scheduler/FCFS.h"
+#include "TimeManager.h"
+
 // #include "PCB.h"
 
 using namespace std;
@@ -32,10 +37,10 @@ int main() {
     printHelp();
 
     ProcessManager process;
+    FCFS scheduler;
     string input;
     
     while(true) {
-
         cout<<"Enter command (type 'help for options): ";
         getline(cin, input);
 
@@ -47,11 +52,11 @@ int main() {
             int burstTime, arrivalTime;
             vector<int> maxResources;
 
-            cout<<"Enter burst time: ";
-            cin>>burstTime;
-
             cout<<"Enter arrival time: ";
             cin>>arrivalTime;
+
+            cout<<"Enter burst time: ";
+            cin>>burstTime;
 
             cin.ignore();
 
@@ -65,9 +70,25 @@ int main() {
                 maxResources.push_back(val);
             }
 
-            process.createProcess(arrivalTime, burstTime, maxResources);
+            auto pcb =process.createProcess(arrivalTime, burstTime, maxResources);
+            scheduler.addProcess(pcb);
+
         } else if(input=="list") {
             process.listJobs();
+        } else if(input=="simulate") {
+            cout<<"\n === Simulating FCFS Simulation ===\n";
+
+            int ticks;
+            cout<<"Enter number of time units to simulate: ";
+            cin>>ticks;
+            cin.ignore();
+
+            for(int i=0; i<ticks; ++i) {
+                TimeManager::tick();
+                scheduler.simulateTimeStep(TimeManager::getTime());
+                this_thread::sleep_for(chrono::milliseconds(500));
+            } 
+
         } else {
             cout<<"Unknown command. Type 'help' to see available commands.\n";
         }

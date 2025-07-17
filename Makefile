@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Iinclude
-SRC = $(wildcard src/*.cpp)
+SRC = $(shell find src -name '*.cpp')
 OBJ = $(SRC:.cpp=.o)
 TARGET = build/os_simulator
 
