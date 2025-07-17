@@ -84,3 +84,7 @@ void RoundRobin::contextSwitch(shared_ptr<PCB> nxtProcess)
 
     Logger::info("Context switch to PID " + to_string(runningProcess->getPID()) + ", time slice = " + to_string(timeSliceRemaining));
 }
+
+bool RoundRobin::isIdle() const {
+    return readyQueue.empty() && runningProcess == nullptr;
+}

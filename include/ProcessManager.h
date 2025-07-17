@@ -1,25 +1,23 @@
-#ifndef PROCESSMANAGER_H
-#define PROCESSMANAGER_H
-
+#pragma once
 #include "PCB.h"
-#include <queue> 
-#include <memory> 
-
-using namespace std;
+#include <vector>
+#include <queue>
+#include <memory>
 
 class ProcessManager {
-    private:
-        int nextPID =1;
-        queue<shared_ptr<PCB>> jobQueue;
+    int nextPID = 1;
+    std::priority_queue<
+        std::shared_ptr<PCB>,
+        std::vector<std::shared_ptr<PCB>>,
+        bool(*)(const std::shared_ptr<PCB>&, const std::shared_ptr<PCB>&)
+    > jobQueue;
 
-    public: 
-        ProcessManager();
+public:
+    ProcessManager();
 
-
-        shared_ptr<PCB> createProcess(int arrivalTime, int burstTime, const vector<int>& maxResources);
-
-        void listJobs() const;
-
+    std::shared_ptr<PCB> createProcess(int arrival, int burst, const std::vector<int>& maxRes);
+    bool jobQueueEmpty() const;
+    std::shared_ptr<PCB> peekJob();
+    std::shared_ptr<PCB> popJob();
+    void listJobs() const;
 };
-
-#endif

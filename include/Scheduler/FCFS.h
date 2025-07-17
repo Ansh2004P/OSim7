@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PCB.h"
-#include "Scheduler.h"
+#include "SchedulerStrategy.h"
 #include <queue>
 
 using namespace std;
@@ -10,7 +10,6 @@ using namespace std;
 /// Implements the basic queue-based scheduling algorithm where the first process to arrive is executed first.
 class FCFS: public Scheduler {
 public:
-
     FCFS();
     
     /// @brief Adds a process to the FCFS ready queue (transitions from NEW to READY).
@@ -29,6 +28,7 @@ public:
 
     void simulateTimeStep(int currentTime) override;
 
+    bool isIdle() const override;
 private:
     queue<shared_ptr<PCB>> readyQueue;
 };

@@ -36,6 +36,11 @@ ProcessState PCB::getState() const {
     return state;
 }
 
+/// @brief Gets the completion time of the process
+int PCB::getCompletionTime() const { 
+    return completionTime; 
+}
+
 /// @brief Gets the maximum resources of the process
 vector<int> PCB::getMaxResources() const {
     return maxResources;
@@ -62,6 +67,12 @@ void PCB::setBurstTime(int time) {
 /// @param time The new remaining time
 void PCB::setRemainingTime(int time) {
     remainingTime = time;
+}
+
+/// @brief Sets the completion time of the process
+/// @param time The new completion time
+void PCB::setCompletionTime(int time) { 
+    completionTime = time; 
 }
 
 /// @brief Sets the state of the process

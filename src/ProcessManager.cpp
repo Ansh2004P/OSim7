@@ -1,42 +1,40 @@
 #include "ProcessManager.h"
-#include "Logger.h"
 #include <iostream>
 
-using namespace std;
+bool compareArrival(const std::shared_ptr<PCB>& a, const std::shared_ptr<PCB>& b) {
+    return a->getArrivalTime() > b->getArrivalTime();  // Min-heap
+}
 
-ProcessManager::ProcessManager() {}
+ProcessManager::ProcessManager() : jobQueue(compareArrival) {}
 
-shared_ptr<PCB> ProcessManager::createProcess(int arrivalTime, int burstTime, const vector<int>& maxResources) {
-    auto process = make_shared<PCB>(nextPID++, arrivalTime, burstTime, maxResources);
-    jobQueue.push(process);
+std::shared_ptr<PCB> ProcessManager::createProcess(int arrival, int burst, const std::vector<int>& maxRes) {
+    auto pcb = std::make_shared<PCB>(nextPID++, arrival, burst, maxRes);
+    jobQueue.push(pcb);
+    return pcb;
+}
 
-    Logger::info("Process " + to_string(process->getPID()) + 
-                 " added to job queue (Burst: " + to_string(burstTime) +
-                 ", Arrival: " + to_string(arrivalTime) + ")");
-    return process;
+bool ProcessManager::jobQueueEmpty() const {
+    return jobQueue.empty();
+}
+
+std::shared_ptr<PCB> ProcessManager::peekJob() {
+    return jobQueue.top();
+}
+
+std::shared_ptr<PCB> ProcessManager::popJob() {
+    auto p = jobQueue.top();
+    jobQueue.pop();
+    return p;
 }
 
 void ProcessManager::listJobs() const {
-    queue<shared_ptr<PCB>> tmp = jobQueue;
+    std::cout << "Current Jobs:\n";
+    std::cout << "PID\tArrival\tBurst\tRemaining\tState\n";
 
-    if (tmp.empty()) {
-        Logger::warn("Job queue is empty.");
-        return;
+    auto temp = jobQueue;
+    while (!temp.empty()) {
+        auto p = temp.top(); temp.pop();
+        std::cout << p->getPID() << "\t" << p->getArrivalTime() << "\t" << p->getBurstTime()
+                  << "\t" << p->getRemainingTime() << "\t" << p->getStateString() << "\n";
     }
-
-    Logger::info("Listing jobs in the job queue:");
-    cout << "--------------------------------------------------\n";
-    cout << "PID\tBurst\tArrival\tState\n";
-    cout << "--------------------------------------------------\n";
-
-    while (!tmp.empty()) {
-        auto process = tmp.front();
-        tmp.pop();
-
-        cout << process->getPID() << "\t"
-             << process->getBurstTime() << "\t"
-             << process->getArrivalTime() << "\t"
-             << process->getStateString() << "\n";
-    }
-    cout << "--------------------------------------------------\n";
 }

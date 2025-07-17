@@ -1,5 +1,5 @@
 #pragma once
-#include "Scheduler.h"
+#include "SchedulerStrategy.h"
 #include <queue>
 #include <memory>
 
@@ -13,6 +13,7 @@ public:
     void updateProcessState() override;
     void simulateTimeStep(int currentTime) override;
     void printQueue() const override;
+    bool isIdle() const override;
 
 private:
     int timeQuantum;
