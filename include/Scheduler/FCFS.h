@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PCB.h"
-#include "SchedulerStrategy.h"
+#include "Scheduler.h"
 #include <queue>
 
 using namespace std;
