@@ -17,6 +17,8 @@ enum ProcessState {
 class PCB {
 public:
     int pid;
+    int ioTimeRemaining = 0; // time left for I/O
+    bool waitingForIO = false;
 
     PCB(int _pid, int _arrival, int _burst, const std::vector<int>& maxRes);
 

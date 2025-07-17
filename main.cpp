@@ -75,8 +75,6 @@ int main() {
             process.listJobs();
         }
         else if (input == "simulate") {
-            cout << "\n === Simulating FCFS Simulation ===\n";
-
             int ticks;
             cout << "Enter number of time units to simulate: ";
             cin >> ticks;

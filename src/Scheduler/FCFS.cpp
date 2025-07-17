@@ -62,3 +62,7 @@ void FCFS::simulateTimeStep(int currentTime) {
     updateProcessState();
     printQueue();
 }
+
+bool FCFS::isIdle() const {
+    return readyQueue.empty() && runningProcess == nullptr;
+}

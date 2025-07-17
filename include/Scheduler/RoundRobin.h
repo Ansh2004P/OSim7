@@ -13,6 +13,7 @@ public:
     void updateProcessState() override;
     void simulateTimeStep(int currentTime) override;
     void printQueue() const override;
+    bool isIdle() const override;
 
 private:
     int timeQuantum;

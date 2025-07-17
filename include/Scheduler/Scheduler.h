@@ -8,11 +8,13 @@
 
 using namespace std;
 
-
 /// @brief Abstract Base Class for pluggable Schedulers (FCFS, Round Robin, etc.).
 class Scheduler {
+protected:
+    virtual bool isIdle() const = 0;
+    queue<std::shared_ptr<PCB>> waitingQueue;
 public:
-    virtual ~Scheduler() =default;
+    virtual ~Scheduler() = default;
 
     /// @brief Adds a process to the scheduler’s internal queue (usually transitions from NEW to READY).
     /// @param process Shared pointer to a PCB to be scheduled.
