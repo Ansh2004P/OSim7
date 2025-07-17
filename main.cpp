@@ -3,7 +3,10 @@
 #include <thread>
 #include <chrono>
 #include "ProcessManager.h"
+
 #include "Scheduler/FCFS.h"
+#include "Scheduler/RoundRobin.h"
+
 #include "TimeManager.h"
 
 // #include "PCB.h"
@@ -37,7 +40,8 @@ int main() {
     printHelp();
 
     ProcessManager process;
-    FCFS scheduler;
+    // FCFS scheduler;
+    RoundRobin scheduler(2); // 2 time quantum for Round Robin
     string input;
     
     while(true) {

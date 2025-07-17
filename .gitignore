@@ -1,0 +1,8 @@
+#Ignore all .exe files
+*.exe
+
+#Ignore all .o files
+*.o
+
+#Ignore all files inside the build directory
+/build/
