@@ -1,12 +1,21 @@
-// Scheduler/SJF.cpp
-
 #include "Scheduler/SJF.h"
+#include "ProcessManager.h"
 #include <iostream>
 
-void SJF::addProcess(std::shared_ptr<PCB> process)
+using namespace std;
+
+/// @brief Pointer to global process manager passed externally
+extern ProcessManager processManager;
+
+/// @brief Custom comparator for priority_queue (already in SJF.h)
+/// struct CompareBurst { bool operator()(...) }
+
+void SJF::addProcess(shared_ptr<PCB> process)
 {
     process->setState(ProcessState::READY);
     readyQueue.push(process);
+    cout << "Process PID: " << process->getPID() << " added to Ready Queue (Burst: " 
+         << process->getBurstTime() << ")\n";
 }
 
 void SJF::runNextProcess()
@@ -20,11 +29,8 @@ void SJF::runNextProcess()
         next->setState(ProcessState::RUNNING);
         runningProcess = next;
 
-        std::cout << "Running Process PID: " << next->getPID() << " [Burst: " << next->getBurstTime() << "]\n";
-    }
-    else
-    {
-        runningProcess = nullptr;
+        cout << "Started Process PID: " << next->getPID()
+             << " [Burst: " << next->getBurstTime() << "]\n";
     }
 }
 
@@ -32,11 +38,12 @@ void SJF::updateProcessState()
 {
     if (runningProcess)
     {
-        runningProcess->setRemainingTime(runningProcess->getRemainingTime() - 1);
+        int remaining = runningProcess->getRemainingTime() - 1;
+        runningProcess->setRemainingTime(remaining);
 
-        if (runningProcess->getRemainingTime() <= 0)
+        if (remaining <= 0)
         {
-            std::cout << "Process PID: " << runningProcess->getPID() << " completed.\n";
+            cout << "Process PID: " << runningProcess->getPID() << " completed.\n";
             runningProcess->setState(ProcessState::TERMINATED);
             runningProcess = nullptr;
         }
@@ -45,7 +52,15 @@ void SJF::updateProcessState()
 
 void SJF::simulateTimeStep(int currentTime)
 {
-    std::cout << "[Time " << currentTime << "] ";
+    cout << "[Time " << currentTime << "] ";
+
+    // Add all newly arrived processes to readyQueue
+    while (!processManager.isJobQueueEmpty() &&
+           processManager.peekNextJob()->getArrivalTime() <= currentTime)
+    {
+        auto arrivingProcess = processManager.popNextJob();
+        addProcess(arrivingProcess);
+    }
 
     if (!runningProcess)
     {
@@ -53,7 +68,8 @@ void SJF::simulateTimeStep(int currentTime)
     }
     else
     {
-        std::cout << "Process PID: " << runningProcess->getPID() << " running.\n";
+        cout << "Process PID: " << runningProcess->getPID() << " running (Remaining: "
+             << runningProcess->getRemainingTime() << ")\n";
     }
 
     updateProcessState();
@@ -61,13 +77,13 @@ void SJF::simulateTimeStep(int currentTime)
 
 void SJF::printQueue() const
 {
-    std::cout << "SJF Ready Queue (shortest burst first):\n";
+    cout << "SJF Ready Queue (Shortest Burst First):\n";
     auto copy = readyQueue;
     while (!copy.empty())
     {
         auto p = copy.top();
         copy.pop();
-        std::cout << "  PID: " << p->getPID() << ", Burst: " << p->getBurstTime() << "\n";
+        cout << "  PID: " << p->getPID() << ", Burst: " << p->getBurstTime() << "\n";
     }
 }
 

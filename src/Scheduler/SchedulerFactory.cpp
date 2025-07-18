@@ -1,7 +1,7 @@
 // Scheduler/SchedulerFactory.cpp
 
 #include <iostream>
-#include "Scheduler/SchedulerFactory.h"
+#include "Scheduler/SchedulerStrategy.h"
 #include "Scheduler/FCFS.h"
 #include "Scheduler/RoundRobin.h"
 #include "Scheduler/SJF.h"

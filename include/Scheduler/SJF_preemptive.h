@@ -1,5 +1,5 @@
 #pragma once
-#include "Scheduler.h"
+#include "SchedulerStrategy.h"
 #include <queue>
 #include <vector>
 #include <memory>

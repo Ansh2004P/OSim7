@@ -1,5 +1,5 @@
 #pragma once
-#include "Scheduler/Scheduler.h"
+#include "Scheduler/SchedulerStrategy.h"
 #include <queue>
 #include <memory>
 
@@ -18,10 +18,11 @@ public:
 
 private:
     struct CompareBurstTime {
-        bool operator()(const shared_ptr<PCB>& a, const shared_ptr<PCB>& b) {
-            return a->getBurstTime() >b->getBurstTime();
+    bool operator()(const shared_ptr<PCB>& a, const shared_ptr<PCB>& b) const {
+            return a->getBurstTime() > b->getBurstTime(); // min-heap
         }
     };
+
 
     priority_queue<shared_ptr<PCB>, vector<shared_ptr<PCB>>, CompareBurstTime> readyQueue;
 };

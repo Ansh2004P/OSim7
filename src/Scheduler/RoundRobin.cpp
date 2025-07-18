@@ -3,12 +3,14 @@
 
 RoundRobin::RoundRobin(int tq) : timeQuantum(tq), timeSliceRemaining(0) {}
 
-void RoundRobin::addProcess(shared_ptr<PCB> process)
+void RoundRobin::addProcess(std::shared_ptr<PCB> process)
 {
     process->setState(ProcessState::READY);
     readyQueue.push(process);
 
-    Logger::info("Time " + to_string(process->getArrivalTime()) + ": PID " + to_string(process->getPID()) + " added to READY queue.");
+    Logger::info("Time " + std::to_string(process->getArrivalTime()) +
+                 ": PID " + std::to_string(process->getPID()) +
+                 " added to READY queue.");
 }
 
 void RoundRobin::runNextProcess()
@@ -29,16 +31,15 @@ void RoundRobin::updateProcessState()
     if (runningProcess->getRemainingTime() <= 0)
     {
         runningProcess->setState(ProcessState::TERMINATED);
-
-        Logger::error(" PID " + to_string(runningProcess->getPID()) + " -> TERMINATED");
+        Logger::error("PID " + std::to_string(runningProcess->getPID()) + " -> TERMINATED");
         runningProcess = nullptr;
     }
     else if (timeSliceRemaining <= 0)
     {
         runningProcess->setState(ProcessState::READY);
         readyQueue.push(runningProcess);
-
-        Logger::warn("PID " + to_string(runningProcess->getPID()) + " time slice expired -> back to READY");
+        Logger::warn("PID " + std::to_string(runningProcess->getPID()) +
+                     " time slice expired -> back to READY");
 
         runningProcess = nullptr;
     }
@@ -54,10 +55,21 @@ void RoundRobin::simulateTimeStep(int currentTime)
     if (runningProcess)
     {
         runningProcess->setState(ProcessState::RUNNING);
-        runningProcess->setRemainingTime(runningProcess->getRemainingTime() - 1);
+
+        // Guard to ensure remainingTime never goes negative
+        if (runningProcess->getRemainingTime() > 0)
+            runningProcess->setRemainingTime(runningProcess->getRemainingTime() - 1);
+
         timeSliceRemaining--;
 
-        Logger::success("Time " + to_string(currentTime) + ": PID " + to_string(runningProcess->getPID()) + " running, remaining time = " + to_string(runningProcess->getRemainingTime()));
+        Logger::success("Time " + std::to_string(currentTime) +
+                        ": PID " + std::to_string(runningProcess->getPID()) +
+                        " running, remaining time = " +
+                        std::to_string(runningProcess->getRemainingTime()));
+    }
+    else
+    {
+        Logger::warn("Time " + std::to_string(currentTime) + ": CPU is idle.");
     }
 
     updateProcessState();
@@ -65,7 +77,7 @@ void RoundRobin::simulateTimeStep(int currentTime)
 
 void RoundRobin::printQueue() const
 {
-    queue<shared_ptr<PCB>> temp = readyQueue;
+    std::queue<std::shared_ptr<PCB>> temp = readyQueue;
     Logger::info("Round Robin Ready Queue:");
 
     while (!temp.empty())
@@ -73,18 +85,22 @@ void RoundRobin::printQueue() const
         auto process = temp.front();
         temp.pop();
 
-        Logger::info("  PID: " + to_string(process->getPID()) + ", Remaining: " + to_string(process->getRemainingTime()));
+        Logger::info("  PID: " + std::to_string(process->getPID()) +
+                     ", Remaining: " + std::to_string(process->getRemainingTime()));
     }
 }
 
-void RoundRobin::contextSwitch(shared_ptr<PCB> nxtProcess)
+void RoundRobin::contextSwitch(std::shared_ptr<PCB> nxtProcess)
 {
     runningProcess = nxtProcess;
     timeSliceRemaining = timeQuantum;
 
-    Logger::info("Context switch to PID " + to_string(runningProcess->getPID()) + ", time slice = " + to_string(timeSliceRemaining));
+    Logger::info("Context switch to PID " +
+                 std::to_string(runningProcess->getPID()) +
+                 ", time slice = " + std::to_string(timeSliceRemaining));
 }
 
-bool RoundRobin::isIdle() const {
+bool RoundRobin::isIdle() const
+{
     return readyQueue.empty() && runningProcess == nullptr;
 }

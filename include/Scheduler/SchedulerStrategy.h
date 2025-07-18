@@ -1,47 +1,56 @@
-// Scheduler.h
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
 
 #pragma once
+
 #include "PCB.h"
 #include <queue>
 #include <memory>
-#include <vector>
 
-using namespace std;
-
-/// @brief Abstract Base Class for pluggable Schedulers (FCFS, Round Robin, etc.).
+/// @brief Abstract Base Class for pluggable Schedulers (FCFS, SJF, RR, etc.)
 class Scheduler {
 protected:
-    virtual bool isIdle() const = 0;
-    queue<std::shared_ptr<PCB>> waitingQueue;
+    /// @brief Queue for waiting processes (e.g., for I/O)
+    std::queue<std::shared_ptr<PCB>> waitingQueue;
+
+    /// @brief Currently running process (can be nullptr)
+    std::shared_ptr<PCB> runningProcess = nullptr;
+
 public:
     virtual ~Scheduler() = default;
 
     /// @brief Adds a process to the scheduler’s internal queue (usually transitions from NEW to READY).
-    /// @param process Shared pointer to a PCB to be scheduled.
     virtual void addProcess(std::shared_ptr<PCB> process) = 0;
 
     /// @brief Runs the next process according to the scheduling algorithm.
-    /// Typically results in a READY → RUNNING state transition.
     virtual void runNextProcess() = 0;
 
     /// @brief Handles events like process completion, IO wait, etc.
-    /// Could lead to RUNNING → WAITING / READY / TERMINATED.
     virtual void updateProcessState() = 0;
 
-    /// @brief Simulates a time step (unit time passage).
-    /// Concrete schedulers use this to perform automatic transitions (e.g., decrement burst time).
-    /// @param currentTime The current simulation time.
+    /// @brief Simulates one time step (used to decrement burst time, check completions, etc.)
     virtual void simulateTimeStep(int currentTime) = 0;
 
-    /// @brief Prints internal scheduling queue(s), useful for debugging or visualizing algorithm behavior.
+    /// @brief Prints internal state of scheduler queues (for debugging)
     virtual void printQueue() const = 0;
 
-protected:
-    /// @brief Currently running process (if any).
-    std::shared_ptr<PCB> runningProcess = nullptr;
+    /// @brief Returns true if the CPU is currently idle
+    virtual bool isIdle() const = 0;
 
-    /// @brief Performs a context switch from current process to next.
+    /// @brief Performs a context switch (can be overridden for algorithm-specific logic)
     virtual void contextSwitch(std::shared_ptr<PCB> nextProcess) {
-        // default implementation, can be overridden
-    };
+        runningProcess = nextProcess;
+    }
+
+    /// @brief Get the currently running process (optional utility)
+    std::shared_ptr<PCB> getRunningProcess() const {
+        return runningProcess;
+    }
+
+  /// @brief Returns true if a process is currently running
+    bool hasRunningProcess() const {
+        return runningProcess != nullptr;
+    }
 };
+
+#endif // SCHEDULER_H

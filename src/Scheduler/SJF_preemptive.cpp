@@ -41,38 +41,40 @@ void SJFPreemptive::simulateTimeStep(int currentTime) {
     // 1. Move arrived jobs to readyQueue
     for (auto it = jobQueue.begin(); it != jobQueue.end();) {
         if ((*it)->getArrivalTime() <= currentTime) {
-            (*it)->setState(ProcessState::READY);
-            std::cout << "Process PID: " << (*it)->getPID() << " arrived.\n";
-            readyQueue.push(*it);
+            std::cout << "Process PID: " << (*it)->getPID() << " arrived. ";
 
-            // Preempt if newly arrived process is better
+            (*it)->setState(ProcessState::READY);
+
+            // Preempt if necessary
             if (runningProcess && (*it)->getRemainingTime() < runningProcess->getRemainingTime()) {
                 std::cout << "Preempting PID: " << runningProcess->getPID()
-                          << " for PID: " << (*it)->getPID() << "\n";
+                          << " for PID: " << (*it)->getPID() << ". ";
 
                 runningProcess->setState(ProcessState::READY);
                 readyQueue.push(runningProcess);
                 runningProcess = nullptr;
             }
 
+            readyQueue.push(*it);
             it = jobQueue.erase(it);
         } else {
             ++it;
         }
     }
 
-    // 2. If no running process, pick the next
+    // 2. If no process is running, pick next from readyQueue
     if (!runningProcess) {
         runNextProcess();
     }
 
-    // 3. Decrement time of currently running process
+    // 3. Execute running process (if any)
     if (runningProcess) {
-        std::cout << "Process PID: " << runningProcess->getPID()
-                  << " running [Remaining: " << runningProcess->getRemainingTime() << "]\n";
+        std::cout << "Running PID: " << runningProcess->getPID()
+                  << " [Remaining: " << runningProcess->getRemainingTime() << "]\n";
+        updateProcessState();
+    } else {
+        std::cout << "CPU Idle.\n";
     }
-
-    updateProcessState();  // Now handles decrement and checks for termination
 }
 
 void SJFPreemptive::printQueue() const {
