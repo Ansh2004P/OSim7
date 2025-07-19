@@ -1,9 +1,11 @@
+// main.cpp
+
 #include <iostream>
 #include <sstream>
 #include <thread>
 #include <chrono>
 #include "ProcessManager.h"
-
+#include "Scheduler/SchedulerFactory.h"
 #include "Scheduler/FCFS.h"
 #include "Scheduler/RoundRobin.h"
 // #include "Scheduler/SJF_Preemptive.h"
@@ -11,6 +13,8 @@
 #include "TimeManager.h"
 
 using namespace std;
+
+ProcessManager processManager;
 
 void printHelp() {
     std::cout << "Commands:\n"
@@ -25,21 +29,19 @@ int main() {
     cout << "\n=====  OS Simulator =====\n";
     printHelp();
 
-    ProcessManager processManager;
-    RoundRobin scheduler(2); // ⏱️ Time Quantum
-    // FCFS scheduler;
-    // SJF_Preemptive scheduler;
-
+    Scheduler* scheduler = SchedulerFactory::createScheduler();
     string input;
 
     while (true) {
-        cout << "Enter command (type 'help' for options): ";
+        cout << "\nEnter command (type 'help' for options): ";
         getline(cin, input);
 
         if (input == "exit") {
             break;
+
         } else if (input == "help") {
             printHelp();
+
         } else if (input == "add") {
             int burstTime, arrivalTime;
             vector<int> maxResources;
@@ -67,26 +69,31 @@ int main() {
             processManager.listJobs();
 
         } else if (input == "simulate") {
-            cout << "Simulating until all processes complete...\n";
+            cout << "\nSimulating until all processes complete...\n";
 
             while (!processManager.isJobQueueEmpty() ||
                    !processManager.isReadyQueueEmpty() ||
-                   scheduler.hasRunningProcess()) {
+                   scheduler->hasRunningProcess() ||
+                   !scheduler->allProcessesTerminated()) {
 
                 TimeManager::tick();
                 int currentTime = TimeManager::getTime();
 
-                // ✅ Move arrived jobs to ready queue
+                cout << "\n[Time " << currentTime << "] Tick\n";
+
+                // Move jobs that have arrived to ready queue
                 processManager.updateJobQueueToReadyQueue(currentTime);
 
-                // ✅ Feed all ready processes to scheduler
+                // Send ready processes to scheduler
                 while (!processManager.isReadyQueueEmpty()) {
-                    scheduler.addProcess(processManager.getNextReadyProcess());
+                    scheduler->addProcess(processManager.getNextReadyProcess());
                 }
 
-                scheduler.simulateTimeStep(currentTime);
+                scheduler->simulateTimeStep(currentTime);
                 this_thread::sleep_for(chrono::milliseconds(500));
             }
+
+            cout << "\n✅ Simulation complete. All processes terminated.\n";
 
         } else {
             cout << "Unknown command. Type 'help' to see available commands.\n";

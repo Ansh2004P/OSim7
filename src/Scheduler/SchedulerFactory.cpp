@@ -1,4 +1,4 @@
-// Scheduler/SchedulerFactory.cpp
+// src/Scheduler/SchedulerFactory.cpp
 
 #include <iostream>
 #include "Scheduler/SchedulerStrategy.h"
@@ -17,6 +17,7 @@ Scheduler *SchedulerFactory::createScheduler() {
     cout << "1. FCFS\n";
     cout << "2. Round Robin\n";
     cout << "3. Shortest Job First\n";
+    cout << "4. Shortest Job First Preemptive\n";
     cout << "Enter choice: ";
     cin >> choice;
     cin.ignore();
@@ -27,6 +28,7 @@ Scheduler *SchedulerFactory::createScheduler() {
         int tq;
         cout << "Enter time quantum for Round Robin: ";
         cin >> tq;
+        cin.ignore();
         return new RoundRobin(tq);
     } else if(choice == 3) {
         return new SJF();

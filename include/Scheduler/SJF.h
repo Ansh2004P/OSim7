@@ -1,12 +1,12 @@
-#pragma once
-#include "Scheduler/SchedulerStrategy.h"
+#ifndef SJF_H
+#define SJF_H
+
+#include "SchedulerStrategy.h"
 #include <queue>
+#include <vector>
 #include <memory>
 
-using namespace std;
-
-class SJF : public Scheduler
-{
+class SJF : public Scheduler {
 public:
     void addProcess(std::shared_ptr<PCB> process) override;
     void runNextProcess() override;
@@ -14,15 +14,18 @@ public:
     void simulateTimeStep(int currentTime) override;
     void printQueue() const override;
     bool isIdle() const override;
-    string name() const { return "SJF"; }
+    std::string getName() const override { return "SJF"; }
 
 private:
     struct CompareBurstTime {
-    bool operator()(const shared_ptr<PCB>& a, const shared_ptr<PCB>& b) const {
+        bool operator()(const std::shared_ptr<PCB>& a, const std::shared_ptr<PCB>& b) const {
             return a->getBurstTime() > b->getBurstTime(); // min-heap
         }
     };
 
-
-    priority_queue<shared_ptr<PCB>, vector<shared_ptr<PCB>>, CompareBurstTime> readyQueue;
+    std::priority_queue<std::shared_ptr<PCB>, 
+                       std::vector<std::shared_ptr<PCB>>, 
+                       CompareBurstTime> readyQueue;
 };
+
+#endif // SJF_H
